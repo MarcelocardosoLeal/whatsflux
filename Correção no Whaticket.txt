@@ -1,0 +1,230 @@
+Correção no Whaticket para suporte a LID
+21/10/2025 às 21:02
+Descrição do Projeto:
+Implementação de suporte a LID Contacts - WhatsApp Baileys.
+
+Adiciona suporte para contatos LID (Link ID) no sistema Whaticket, resolvendo problemas de duplicação de tickets e contatos quando o WhatsApp utiliza identificadores LID em vez dos tradicionais JIDs.
+
+Problema Resolvido:
+
+• Tickets duplicados para o mesmo contato quando usando LID
+• Histórico de conversas fragmentado entre JID e LID do mesmo usuário
+• Incompatibilidade com a nova funcionalidade de privacidade do WhatsApp
+
+LID (Link ID) é um novo sistema de identificação do WhatsApp para proteger a privacidade:
+• Formato tradicional: 5511999999999@s.whatsapp.net
+• Formato LID: 5511999999999@lid
+• Usado em: Grupos com privacidade ativada, comunidades, contatos anônimos
+
+Migration - Adição do Campo LID:
+
+Arquivo: backend/src/database/migrations/20250820004802-add-lid-column-to-contacts.ts
+
+
+import { QueryInterface, DataTypes } from "sequelize";
+
+module.exports = {
+  up: (queryInterface: QueryInterface) => {
+    return queryInterface.addColumn("Contacts", "lid", {
+      type: DataTypes.STRING,
+      allowNull: true
+    });
+  },
+
+  down: (queryInterface: QueryInterface) => {
+    return queryInterface.removeColumn("Contacts", "lid");
+  }
+};
+
+
+Modelo Contact - Novo Campo LID:
+
+Arquivo: backend/src/models/Contact.ts
+
+Localização: Linha 107, após o campo remoteJid
+
+
+@Column
+remoteJid: string;
+
+@Column
+lid: string;  // ? NOVO CAMPO
+
+@Column
+lgpdAcceptedAt: Date;
+
+
+CreateOrUpdateContactService - Lógica de Busca Melhorada:
+
+Arquivo: backend/src/services/ContactServices/CreateOrUpdateContactService.ts
+
+Import do Operador OR:
+
+Localização: Linha 11
+
+
+import { Op } from "sequelize";  // ? NOVO IMPORT
+
+
+Interface Request Atualizada:
+
+Localização: Linha 31
+
+
+interface Request {
+  name: string;
+  number: string;
+  isGroup: boolean;
+  email?: string;
+  profilePicUrl?: string;
+  companyId: number;
+  channel?: string;
+  extraInfo?: ExtraInfo[];
+  remoteJid?: string;
+  whatsappId?: number;
+  wbot?: any;
+  lid?: string;  // ? NOVO CAMPO
+}
+
+
+Parâmetros da Função:
+
+Localização: Linha 78
+
+
+const CreateOrUpdateContactService = async ({
+  name,
+  number: rawNumber,
+  profilePicUrl,
+  isGroup,
+  email = "",
+  channel = "whatsapp",
+  companyId,
+  extraInfo = [],
+  remoteJid = "",
+  whatsappId,
+  wbot,
+  lid  // ? NOVO PARÂMETRO
+}: Request): Promise<Contact> => {
+
+
+Busca por Número OU LID:
+
+Localização: Linhas 88-94
+
+
+// ANTES
+contact = await Contact.findOne({
+  where: { number, companyId }
+});
+
+// DEPOIS
+contact = await Contact.findOne({
+  where: { 
+    [Op.or]: [
+      { number, companyId },
+      ...(lid ? [{ lid, companyId }] : [])
+    ]
+  }
+});
+
+
+Criação de Contatos com LID:
+
+Localização: Linhas 174 e 189
+
+
+// Para WhatsApp
+contact = await Contact.create({
+  name,
+  number,
+  email,
+  isGroup,
+  companyId,
+  channel,
+  acceptAudioMessage: acceptAudioMessageContact === 'enabled' ? true : false,
+  remoteJid: newRemoteJid,
+  profilePicUrl,
+  urlPicture: "",
+  whatsappId,
+  lid  // ? NOVO CAMPO
+});
+
+// Para Facebook/Instagram  
+contact = await Contact.create({
+  name,
+  number,
+  email,
+  isGroup,
+  companyId,
+  channel,
+  profilePicUrl,
+  urlPicture: "",
+  whatsappId,
+  lid  // ? NOVO CAMPO
+});
+
+
+verifyContact - Detecção de LID:
+
+Arquivo: backend/src/services/WbotServices/wbotMessageListener.ts
+
+Localização: Linhas 877-889
+
+
+const verifyContact = async (
+  msgContact: IMe,
+  wbot: Session,
+  companyId: number
+): Promise<Contact> => {
+  let profilePicUrl: string = "";
+
+  // Detectar LID contact
+  const isLidContact = msgContact.id.includes("@lid");  // ? NOVA DETECÇÃO
+  const lid = isLidContact ? msgContact.id : undefined; // ? NOVA LÓGICA
+
+  const contactData = {
+    name: msgContact.name || msgContact.id.replace(/\D/g, ""),
+    number: msgContact.id.replace(/\D/g, ""),
+    profilePicUrl,
+    isGroup: msgContact.id.includes("g.us"),
+    companyId,
+    remoteJid: msgContact.id,
+    whatsappId: wbot.id,
+    wbot,
+    lid  // ? NOVO CAMPO
+  };
+
+  if (contactData.isGroup) {
+    contactData.number = msgContact.id.replace("@g.us", "");
+  }
+
+  const contact = await CreateOrUpdateContactService(contactData);
+
+  return contact;
+};
+
+
+Detecção Automática:
+- Sistema detecta automaticamente se o JID contém @lid
+- Se for LID, armazena o ID completo no campo lid
+
+Busca Inteligente:
+- Busca primeiro por number tradicional
+- Se não encontrar e tiver lid, busca também por lid
+- Evita criação de contatos duplicados
+
+Unificação de Histórico:
+- Mesmo contato com JID e LID será tratado como único
+- Histórico de conversas permanece unificado
+- Tickets não duplicam
+
+Compatibilidade:
+
+- Baileys 6.7.18+: Suporte nativo a LID
+
+Elimina Duplicatas: Um contato = um registro, independente de JID/LID
+Histórico Unificado: Todas as conversas em um local
+Privacidade Mantida: Respeita as configurações de privacidade do WhatsApp
+Performance: Busca otimizada com índices existentes
+Escalabilidade: Preparado para futuras mudanças do WhatsApp.

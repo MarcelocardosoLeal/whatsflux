@@ -94,8 +94,4 @@ networks:
 
 volumes:
   whaticket_backend_data:
-    external: true
-    name: whaticket_backend_data
   whaticket_frontend_data:
-    external: true
-    name: whaticket_frontend_data

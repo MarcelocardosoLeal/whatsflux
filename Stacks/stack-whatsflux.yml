@@ -1,7 +1,7 @@
 version: "3.8"
 
-# ARQUIVO DE PRODUÇÃO PARA PORTAINER / DOCKER SWARM
-# Este arquivo substitui a versão local para uso no seu servidor com Traefik.
+# STACK WHATSFLUX - PRODUÇÃO (TRAEFIK)
+# Esta é a sua stack oficial de deploy no Portainer.
 
 services:
   whaticket_backend:
@@ -11,7 +11,6 @@ services:
     volumes:
       - whaticket_backend_data:/usr/src/app/
     environment:
-      # POSTGRES (Dados da sua stack real)
       - DB_DIALECT=postgres
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -19,24 +18,16 @@ services:
       - DB_PASS=0bdhs1bwdcj0ahlmdfjw1y5bn
       - DB_NAME=whaticket
       - TZ=America/Sao_Paulo
-
-      # SECRETS
       - JWT_SECRET=kZa0Td+YZpjRUy7uQUpigJa7Mk4vcW4Y0ymKPZX0Ts7=
       - JWT_REFRESH_SECRET=dBSXqFg9TaNUEDXVa7fhMTRLbysP+j4DSqf7+rAxD3A=
-
-      # URLS
       - PORT=3000
       - PROXY_PORT=443
       - BACKEND_URL=https://homologapi.whatsflux.com.br
       - FRONTEND_URL=https://appv2.whatisflux.com.br
       - CHROME_ARGS=--no-sandbox --disable-setuid-sandbox
-
-      # REDIS (Dados da sua stack real)
       - REDIS_URI=redis://:0bdhs1bwdcj0ahlmdfjw1y5bn@redis:6379
       - REDIS_OPT_LIMITER_MAX=1
       - REDIS_OPT_LIMITER_DURATION=3000
-
-      # LIMITS
       - USER_LIMIT=1000
       - CONNECTIONS_LIMIT=1000
       - CLOSED_SEND_BY_ME=true

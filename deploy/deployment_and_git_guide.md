@@ -19,30 +19,30 @@ Como você tem o **GitHub Desktop**, siga estes passos para criar um repositóri
 
 ---
 
-## 🏗️ Parte 2: Deploy no Portainer
+## 📦 Parte 2: Criando as Imagens no Servidor
 
-Como o Postgres e o Redis já estão rodando no seu servidor, vamos adicionar apenas a Stack da aplicação.
+Como o seu código é privado e não queremos deixar as imagens abertas na internet (num Registro público), precisamos "ensinar" o seu servidor a criar as imagens do WhatsFlux uma única vez.
 
-### Passo 1: Preparar no Portainer
-1.  Acesse seu **Portainer**.
-2.  Vá em **Stacks** no menu lateral.
-3.  Clique no botão **+ Add stack**.
-4.  Dê um nome, por exemplo: `whatsflux-app`.
+### Passo 1: Clonar no Servidor
+1.  Acesse o terminal do seu servidor (via SSH).
+2.  Entre na pasta onde você costuma colocar seus projetos.
+3.  Clone o seu novo repositório privado:
+    ```bash
+    git clone https://github.com/SEU_USUARIO/Whaticket.git
+    cd Whaticket
+    ```
 
-### Passo 2: Configurar o Código
-1.  Em **Build method**, você tem duas opções:
-    *   **Option A (Web editor)**: Abra o arquivo `deploy/docker-compose.stack.yml` no seu computador, copie tudo e cole no editor do Portainer.
-    *   **Option B (Repository - Recomendado)**:
-        *   Selecione **Repository**.
-        *   Cole a URL do seu GitHub Privado.
-        *   Em **Compose path**, coloque: `deploy/docker-compose.stack.yml`.
-
-### Passo 3: Finalizar
-1.  Clique em **Deploy the stack**.
-2.  O Portainer vai baixar o código, construir as imagens (backend e frontend) e colocar no ar.
-3.  Aguarde cerca de 2 a 5 minutos para o build inicial.
+### Passo 2: Construir as Imagens
+1.  Rode este comando único. Ele vai ler o seu código e criar as imagens `whaticket-backend` e `whaticket-frontend` dentro do seu servidor:
+    ```bash
+    docker compose -f deploy/docker-compose.build.yml build
+    ```
+2.  Aguarde terminar (pode levar uns 5 minutos). 
+3.  **Pronto!** Agora que as imagens existem localmente, o Portainer vai conseguir encontrá-las.
 
 ---
+
+## 🏗️ Parte 3: Deploy da Stack no Portainer
 
 ## 🛠️ Detalhes Técnicos (Já configurados para você)
 

@@ -1,99 +1,49 @@
-version: "3.8"
-
-# ARQUIVO DE PRODUÇÃO PARA PORTAINER / DOCKER SWARM
-# Este arquivo substitui a versão local para uso no seu servidor com Traefik.
+version: '3.8'
 
 services:
   whaticket_backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
     image: whaticket-backend:latest
-    networks:
-      - minha_rede
-    volumes:
-      - whaticket_backend_data:/usr/src/app/
     environment:
-      # POSTGRES (Dados da sua stack real)
-      - DB_DIALECT=postgres
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASS=0bdhs1bwdcj0ahlmdfjw1y5bn
-      - DB_NAME=whaticket
-      - TZ=America/Sao_Paulo
-
-      # SECRETS
-      - JWT_SECRET=G9qR8hKzP2wV5xN3m7bT4vC6xL9n2mB8
-      - JWT_REFRESH_SECRET=X7pL4n9m2vB8c6xL9n2mB8G9qR8hKzP2
-
-      # URLS
-      - PORT=3000
-      - PROXY_PORT=443
-      - BACKEND_URL=https://homologapi.whatsflux.com.br
-      - FRONTEND_URL=https://appv2.whatisflux.com.br
-      - CHROME_ARGS=--no-sandbox --disable-setuid-sandbox
-
-      # REDIS (Dados da sua stack real)
-      - REDIS_URI=redis://:0bdhs1bwdcj0ahlmdfjw1y5bn@redis:6379
-      - REDIS_OPT_LIMITER_MAX=1
-      - REDIS_OPT_LIMITER_DURATION=3000
-
-      # LIMITS
-      - USER_LIMIT=1000
-      - CONNECTIONS_LIMIT=1000
-      - CLOSED_SEND_BY_ME=true
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      resources:
-        limits:
-          cpus: "1"
-          memory: 2048M
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.whaticket_backend.rule=Host(`homologapi.whatsflux.com.br`)"
-        - "traefik.http.routers.whaticket_backend.entrypoints=websecure"
-        - "traefik.http.routers.whaticket_backend.tls.certresolver=letsencryptresolver"
-        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowOriginList=https://appv2.whatisflux.com.br"
-        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowMethods=GET,HEAD,PUT,PATCH,POST,DELETE"
-        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowHeaders=Origin, X-Requested-With, Content-Type, Accept, Authorization"
-        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowCredentials=true"
-        - "traefik.http.services.whaticket_backend.loadbalancer.server.port=3000"
+      - DB_DIALECT=${DB_DIALECT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - TZ=${TZ}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - PORT=${PORT}
+      - PROXY_PORT=${PROXY_PORT}
+      - BACKEND_URL=${BACKEND_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - CHROME_ARGS=${CHROME_ARGS}
+      - REDIS_URI=${REDIS_URI}
+      - REDIS_OPT_LIMITER_MAX=${REDIS_OPT_LIMITER_MAX}
+      - REDIS_OPT_LIMITER_DURATION=${REDIS_OPT_LIMITER_DURATION}
+      - GERENCIANET_SANDBOX=${GERENCIANET_SANDBOX}
+      - GERENCIANET_CLIENT_ID=${GERENCIANET_CLIENT_ID}
+      - GERENCIANET_CLIENT_SECRET=${GERENCIANET_CLIENT_SECRET}
+      - GERENCIANET_PIX_CERT=${GERENCIANET_PIX_CERT}
+      - GERENCIANET_PIX_KEY=${GERENCIANET_PIX_KEY}
+      - USER_LIMIT=${USER_LIMIT}
+      - CONNECTIONS_LIMIT=${CONNECTIONS_LIMIT}
+      - CLOSED_SEND_BY_ME=${CLOSED_SEND_BY_ME}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_PORT=${MAIL_PORT}
 
   whaticket_frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
     image: whaticket-frontend:latest
-    networks:
-      - minha_rede
-    depends_on:
-      - whaticket_backend
-    volumes:
-      - whaticket_frontend_data:/usr/src/app/
     environment:
-      - BACKEND_URL=https://homologapi.whatsflux.com.br
-      - REACT_APP_BACKEND_URL=https://homologapi.whatsflux.com.br
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      resources:
-        limits:
-          cpus: "1"
-          memory: 2048M
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.whaticket_frontend.rule=Host(`appv2.whatisflux.com.br`)"
-        - "traefik.http.routers.whaticket_frontend.entrypoints=websecure"
-        - "traefik.http.routers.whaticket_frontend.tls.certresolver=letsencryptresolver"
-        - "traefik.http.services.whaticket_frontend.loadbalancer.server.port=3250"
-
-networks:
-  minha_rede:
-    external: true
-    name: minha_rede
-
-volumes:
-  whaticket_backend_data:
-  whaticket_frontend_data:
+      - BACKEND_URL=${BACKEND_URL}
+      - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+      - REACT_APP_HOURS_CLOSE_TICKETS_AUTO=${REACT_APP_HOURS_CLOSE_TICKETS_AUTO}

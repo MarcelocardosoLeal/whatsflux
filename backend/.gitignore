@@ -3,8 +3,8 @@ public/*
 !public/logotipos/
 dist
 !public/.gitkeep
-.env
-.env.test
+# .env
+# .env.test
 
 package-lock.json
 yarn.lock

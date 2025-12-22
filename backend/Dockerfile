@@ -13,7 +13,7 @@ RUN apt-get update \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
-      --no-install-recommends \
+    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64 /usr/local/bin/dumb-init
@@ -37,6 +37,7 @@ RUN chmod +x add-env-vars.sh
 
 EXPOSE 3000
 
-CMD dockerize -wait tcp://${DB_HOST}:${DB_PORT} \
+CMD dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 30s \
+    && npx sequelize db:migrate \
     && sh ./add-env-vars.sh \
     && node dist/server.js

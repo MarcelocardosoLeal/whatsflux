@@ -18,8 +18,8 @@ services:
       - DB_PASS=0bdhs1bwdcj0ahlmdfjw1y5bn
       - DB_NAME=whaticket
       - TZ=America/Sao_Paulo
-      - JWT_SECRET=kZa0Td+YZpjRUy7uQUpigJa7Mk4vcW4Y0ymKPZX0Ts7=
-      - JWT_REFRESH_SECRET=dBSXqFg9TaNUEDXVa7fhMTRLbysP+j4DSqf7+rAxD3A=
+      - JWT_SECRET=G9qR8hKzP2wV5xN3m7bT4vC6xL9n2mB8
+      - JWT_REFRESH_SECRET=X7pL4n9m2vB8c6xL9n2mB8G9qR8hKzP2
       - PORT=3000
       - PROXY_PORT=443
       - BACKEND_URL=https://homologapi.whatsflux.com.br

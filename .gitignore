@@ -4,10 +4,10 @@ dist/
 build/
 *.tsbuildinfo
 
-# Environment and Secrets (CRITICAL: DO NOT REMOVE)
-.env
-.env.production
-.env.local
+# Environment and Secrets (User chose to upload to PRIVATE repo)
+# .env
+# .env.production
+# .env.local
 *.pem
 *.key
 

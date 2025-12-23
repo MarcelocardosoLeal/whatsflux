@@ -119,8 +119,8 @@ services:
     
 networks:
   minha_rede:
-    driver: overlay
-    attachable: true
+    external: true
+    name: minha_rede
 
 volumes:
   whaticket_backend_data:

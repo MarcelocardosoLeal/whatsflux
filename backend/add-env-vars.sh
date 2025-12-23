@@ -10,14 +10,14 @@ _replaceBackendEnvVars() {
 
     if [ -z "$FILES" ]; then
         echo "Nenhum arquivo contendo as ocorrencias especificas encontrado."
-        exit 0
+        return 0
     fi
 
     # Escapar caracteres especiais nas variaveis de ambiente
     ESCAPED_DB_HOST=$(printf '%s\n' "$DB_HOST" | sed 's:[\\/&]:\\&:g')
     ESCAPED_DB_PORT=$(printf '%s\n' "$DB_PORT" | sed 's:[\\/&]:\\&:g')
     ESCAPED_DB_USER=$(printf '%s\n' "$DB_USER" | sed 's:[\\/&]:\\&:g')
-    ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASSWORD" | sed 's:[\\/&]:\\&:g')
+    ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASS" | sed 's:[\\/&]:\\&:g')
     ESCAPED_DB_NAME=$(printf '%s\n' "$DB_NAME" | sed 's:[\\/&]:\\&:g')
     ESCAPED_TZ=$(printf '%s\n' "$TZ" | sed 's:[\\/&]:\\&:g')
     ESCAPED_JWT_SECRET=$(printf '%s\n' "$JWT_SECRET" | sed 's:[\\/&]:\\&:g')
@@ -85,6 +85,15 @@ _replaceBackendEnvVars() {
 # Construir a URI de conexao
 DB_URI="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
+# Garantir que o banco exista
+_ensureDatabase() {
+    DB_ADMIN_URI="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/postgres"
+    EXISTS=$(psql "${DB_ADMIN_URI}" -Atc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'")
+    if [ -z "$EXISTS" ]; then
+        psql "${DB_ADMIN_URI}" -c "CREATE DATABASE \"${DB_NAME}\""
+    fi
+}
+
 # Funcao para verificar e aplicar seeds se necessario
 _checkAndSeed() {
     # Verificar se a tabela SeedControl existe
@@ -104,4 +113,5 @@ _checkAndSeed() {
 
 # Executar funcoes
 _replaceBackendEnvVars
+_ensureDatabase
 _checkAndSeed

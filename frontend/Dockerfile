@@ -4,6 +4,9 @@ WORKDIR /usr/src/app
 COPY package*.json package-lock.json ./
 RUN npm install
 COPY . .
+# Injetar URL do backend durante o build (Webpack minifica e impossibilita substituição em runtime)
+ARG REACT_APP_BACKEND_URL=https://homologapi.whatsflux.com.br
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 RUN npm run build
 
 # Etapa final

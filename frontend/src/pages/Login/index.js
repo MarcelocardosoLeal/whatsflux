@@ -240,7 +240,7 @@ const Login = () => {
     handleLogin(user);
   };
 
-  const backendUrl = (process.env.REACT_APP_BACKEND_URL || "http://localhost:4000").replace(/\/$/, "");
+  const backendUrl = (process.env.REACT_APP_BACKEND_URL || "https://api.example.com").replace(/\/$/, "");
   const logo = `${backendUrl}/public/logotipos/login.png`;
   const randomValue = Math.random();
   const logoWithRandom = `${logo}?r=${randomValue}`;

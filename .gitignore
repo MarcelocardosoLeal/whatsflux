@@ -41,3 +41,15 @@ yarn-debug.log*
 yarn-error.log*
 traefik.log
 access-log
+
+# Arquivos de desenvolvimento LOCAL (não subir para GitHub)
+docker-compose.local.yaml
+frontend/Dockerfile.local
+*.local.yaml
+*.local.yml
+test_login.ps1
+test_cors.ps1
+insert_setting.sql
+check_data.sql
+query.sql
+backend_logs.txt

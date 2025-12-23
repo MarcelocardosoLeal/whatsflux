@@ -20,7 +20,7 @@ services:
       - PORT=3000
       - PROXY_PORT=443
       - BACKEND_URL=https://homologapi.whatsflux.com.br
-      - FRONTEND_URL=https://appv2.whatisflux.com.br
+      - FRONTEND_URL=https://appv2.whatsflux.com.br
       - CHROME_ARGS=--no-sandbox --disable-setuid-sandbox
       - REDIS_URI=redis://:0bdhs1bwdcj0ahlmdfjw1y5bn@redis:6379
       - REDIS_OPT_LIMITER_MAX=1
@@ -43,7 +43,7 @@ services:
         - "traefik.http.routers.whaticket_backend.rule=Host(`homologapi.whatsflux.com.br`)"
         - "traefik.http.routers.whaticket_backend.entrypoints=websecure"
         - "traefik.http.routers.whaticket_backend.tls.certresolver=letsencryptresolver"
-        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowOriginList=https://appv2.whatisflux.com.br"
+        - "traefik.http.middlewares.cors_backend.headers.accessControlAllowOriginList=https://appv2.whatsflux.com.br"
         - "traefik.http.middlewares.cors_backend.headers.accessControlAllowMethods=GET,HEAD,PUT,PATCH,POST,DELETE"
         - "traefik.http.middlewares.cors_backend.headers.accessControlAllowHeaders=Origin, X-Requested-With, Content-Type, Accept, Authorization"
         - "traefik.http.middlewares.cors_backend.headers.accessControlAllowCredentials=true"
@@ -72,7 +72,7 @@ services:
           memory: 2048M
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.whaticket_frontend.rule=Host(`appv2.whatisflux.com.br`)"
+        - "traefik.http.routers.whaticket_frontend.rule=Host(`appv2.whatsflux.com.br`)"
         - "traefik.http.routers.whaticket_frontend.entrypoints=websecure"
         - "traefik.http.routers.whaticket_frontend.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.whaticket_frontend.loadbalancer.server.port=3250"

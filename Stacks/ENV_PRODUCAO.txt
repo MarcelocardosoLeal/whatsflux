@@ -9,7 +9,7 @@ REDIS_URI=redis://:0bdhs1bwdcj0ahlmdfjw1y5bn@redis:6379
 JWT_SECRET=kZa0Td+YZpjRUy7uQUpigJa7Mk4vcW4Y0ymKPZX0Ts7=
 JWT_REFRESH_SECRET=dBSXqFg9TaNUEDXVa7fhMTRLbysP+j4DSqf7+rAxD3A=
 BACKEND_URL=https://homologapi.whatsflux.com.br
-FRONTEND_URL=https://appv2.whatisflux.com.br
+FRONTEND_URL=https://appv2.whatsflux.com.br
 REACT_APP_BACKEND_URL=https://homologapi.whatsflux.com.br
 PORT=3000
 PROXY_PORT=443

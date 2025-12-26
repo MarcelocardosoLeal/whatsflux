@@ -53,3 +53,6 @@ insert_setting.sql
 check_data.sql
 query.sql
 backend_logs.txt
+
+# Pasta de workflows do agente (não subir para GitHub)
+.agent/

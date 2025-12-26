@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "versionSystem": "v6.0.0",
-  "nomeEmpresa": "Whaticket SaaS",
+  "nomeEmpresa": "WhatsFlux",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.14.0",

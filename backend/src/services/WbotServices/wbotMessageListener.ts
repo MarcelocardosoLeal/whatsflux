@@ -95,6 +95,7 @@ interface ImessageUpsert {
 interface IMe {
   name: string;
   id: string;
+  originalLid?: string;
 }
 
 interface IMessage {
@@ -485,15 +486,37 @@ const getSenderMessage = (
 
 const getContactMessage = async (msg: proto.IWebMessageInfo, wbot: Session) => {
   const isGroup = msg.key.remoteJid.includes("g.us");
-  const rawNumber = msg.key.remoteJid.replace(/\D/g, "");
+
+  // Detectar se remoteJid é LID (Link ID)
+  const isLid = msg.key.remoteJid?.includes("@lid");
+
+  // Extrair senderPn se disponível (número real do contato)
+  const senderPn = (msg as any).senderPn;
+
+  // Determinar o ID e número real a usar
+  let contactId = msg.key.remoteJid;
+  let rawNumber = msg.key.remoteJid.replace(/\D/g, "");
+
+  // Se é LID e temos senderPn, usar o número real
+  if (isLid && senderPn) {
+    contactId = senderPn;
+    rawNumber = senderPn.replace(/\D/g, "");
+    logger.info(`LID detectado: ${msg.key.remoteJid} -> Usando senderPn: ${senderPn}`);
+  }
+
+  // Guardar o LID original para referência
+  const originalLid = isLid ? msg.key.remoteJid : undefined;
+
   return isGroup
     ? {
       id: getSenderMessage(msg, wbot),
-      name: msg.pushName
+      name: msg.pushName,
+      originalLid
     }
     : {
-      id: msg.key.remoteJid,
-      name: msg.key.fromMe ? rawNumber : msg.pushName
+      id: contactId,
+      name: msg.key.fromMe ? rawNumber : msg.pushName,
+      originalLid
     };
 };
 
@@ -559,9 +582,15 @@ const verifyContact = async (
     profilePicUrl = `${process.env.FRONTEND_URL}/nopicture.png`;
   }
 
-  // Detectar LID contact
+  // Usar originalLid se disponível (quando convertemos LID para número real)
+  // Caso contrário, verificar se o ID atual é um LID
   const isLidContact = msgContact.id.includes("@lid");
-  const lid = isLidContact ? msgContact.id : undefined;
+  const lid = msgContact.originalLid || (isLidContact ? msgContact.id : undefined);
+
+  // Log para debug
+  if (lid) {
+    logger.info(`Contato com LID detectado: ${lid} -> Número: ${msgContact.id.replace(/\D/g, "")}`);
+  }
 
   const contactData = {
     name: msgContact?.name || msgContact.id.replace(/\D/g, ""),

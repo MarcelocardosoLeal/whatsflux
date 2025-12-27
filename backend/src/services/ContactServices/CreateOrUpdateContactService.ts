@@ -48,13 +48,23 @@ const CreateOrUpdateContactService = async ({
   });
 
   if (contact) {
-    contact.update({ profilePicUrl });
-    console.log(contact.whatsappId)
-    if (isNil(contact.whatsappId === null)) {
-      contact.update({
-        whatsappId
-      });
+    // Preparar dados para atualização
+    const updateData: any = { profilePicUrl };
+
+    // Se recebemos um LID e o contato não tem LID, adicionar
+    // Isso permite unificar contatos que foram criados pelo número
+    if (lid && !contact.lid) {
+      updateData.lid = lid;
+      console.log(`Atualizando contato ${contact.number} com LID: ${lid}`);
     }
+
+    // Atualizar whatsappId se necessário
+    if (whatsappId && isNil(contact.whatsappId)) {
+      updateData.whatsappId = whatsappId;
+    }
+
+    await contact.update(updateData);
+
     io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-contact`, {
       action: "update",
       contact

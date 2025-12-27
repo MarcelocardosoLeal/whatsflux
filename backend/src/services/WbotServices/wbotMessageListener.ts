@@ -491,7 +491,8 @@ const getContactMessage = async (msg: proto.IWebMessageInfo, wbot: Session) => {
   const isLid = msg.key.remoteJid?.includes("@lid");
 
   // Extrair senderPn se disponível (número real do contato)
-  const senderPn = (msg as any).senderPn;
+  // O senderPn fica em msg.key.senderPn na estrutura do Baileys
+  const senderPn = (msg as any).key?.senderPn || (msg as any).senderPn;
 
   // Determinar o ID e número real a usar
   let contactId = msg.key.remoteJid;
